@@ -6,6 +6,11 @@ pub fn sum(allocator: mem.Allocator, factors: []const u32, limit: u32) !u64 {
     defer combined.deinit();
 
     for (factors) |f| {
+        if (f == 0) {
+            try combined.put(0, {});
+            continue;
+        }
+
         var multiplier: u32 = 1;
         while (f * multiplier < limit) : (multiplier += 1) {
             try combined.put(f * multiplier, {});
