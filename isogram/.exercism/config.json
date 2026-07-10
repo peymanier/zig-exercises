@@ -1,0 +1,19 @@
+{
+  "authors": [
+    "massivelivefun"
+  ],
+  "files": {
+    "solution": [
+      "isogram.zig"
+    ],
+    "test": [
+      "test_isogram.zig"
+    ],
+    "example": [
+      ".meta/example.zig"
+    ]
+  },
+  "blurb": "Determine whether a phrase is an isogram, a word with no repeated letters.",
+  "source": "Wikipedia",
+  "source_url": "https://en.wikipedia.org/wiki/Isogram"
+}
