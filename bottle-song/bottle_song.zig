@@ -8,8 +8,8 @@ pub fn recite(buffer: []u8, start_count: u32, take_count: u32) ![]const u8 {
     var take: u32 = 1;
     while (take <= take_count) : (take += 1) {
         if (taken > 0) {
-            @memcpy(buffer[pos..][0..2], "\n\n");
-            pos += 2;
+            const newlines = try std.mem.print(buffer[pos..], "\n\n", .{});
+            pos += newlines.len;
         }
 
         const verse = try take_once(buffer[pos..], start_count - taken);
