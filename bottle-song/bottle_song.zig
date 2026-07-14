@@ -29,7 +29,7 @@ fn take_once(buffer: []u8, start_count: u32) ![]const u8 {
         \\There'll be {[left]s} green {[left_bottle]s} hanging on the wall.
     ;
     const args = getPoemArgs(start_count);
-    return try std.fmt.bufPrint(buffer, template, args);
+    return try std.mem.print(buffer, template, args);
 }
 
 const PoemArgs = struct {
