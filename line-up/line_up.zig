@@ -3,7 +3,7 @@ const mem = std.mem;
 
 pub fn format(allocator: mem.Allocator, name: []const u8, number: u10) ![]u8 {
     const suffix = getNumberSuffix(number);
-    return allocator.print("{s}, you are the {d}{s} customer we serve today. Thank you!", .{ name, number, suffix });
+    return try allocator.print("{s}, you are the {d}{s} customer we serve today. Thank you!", .{ name, number, suffix });
 }
 
 fn getNumberSuffix(num: u10) []const u8 {
