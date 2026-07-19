@@ -17,9 +17,6 @@ fn cipher(c: u8, shiftKey: u5) u8 {
         return c;
     }
 
-    if (std.ascii.isLower(c)) {
-        return 'a' + ((c - 'a' + shiftKey) % 26);
-    }
-
-    return 'A' + ((c - 'A' + shiftKey) % 26);
+    const base: u8 = if (std.ascii.isLower(c)) 'a' else 'A';
+    return base + ((c - base + shiftKey) % 26);
 }
