@@ -5,16 +5,24 @@ pub fn factors(allocator: mem.Allocator, value: u64) mem.Allocator.Error![]u64 {
     var result = std.ArrayList(u64).empty;
     defer result.deinit(allocator);
 
-    var val = value;
-    var i: usize = 2;
-    while (val > 0 and i <= val) {
-        if (val % i != 0) {
-            i += 1;
-            continue;
+    var n = value;
+    while (n % 2 == 0) {
+        n /= 2;
+        try result.append(allocator, 2);
+    }
+
+    var factor: usize = 3;
+    while (factor * factor <= n) {
+        while (n % factor == 0) {
+            try result.append(allocator, factor);
+            n /= factor;
         }
 
-        val /= i;
-        try result.append(allocator, i);
+        factor += 2;
+    }
+
+    if (n > 1) {
+        try result.append(allocator, n);
     }
 
     return result.toOwnedSlice(allocator);
