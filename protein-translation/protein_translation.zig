@@ -18,16 +18,18 @@ pub const Protein = enum {
 
 pub fn proteins(allocator: mem.Allocator, strand: []const u8) (mem.Allocator.Error || TranslationError)![]Protein {
     var result: std.ArrayList(Protein) = .empty;
-    errdefer result.deinit(allocator);
+    defer result.deinit(allocator);
 
-    var i: usize = 0;
-    while (i + 3 <= strand.len) : (i += 3) {
-        const codon: *const [3]u8 = strand[i..][0..3];
+    var start: usize = 0;
+    const codon_len = 3;
+    while (start + codon_len <= strand.len) : (start += 3) {
+        const codon = strand[start..][0..3];
         const protein = try translateCodon(codon);
-        if (protein == .stop) break;
+        if (protein == Protein.stop) break;
+
         try result.append(allocator, protein);
     } else {
-        if (i != strand.len) return TranslationError.InvalidCodon;
+        if (start != strand.len) return TranslationError.InvalidCodon;
     }
 
     return result.toOwnedSlice(allocator);
