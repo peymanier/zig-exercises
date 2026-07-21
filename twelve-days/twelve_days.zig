@@ -1,58 +1,52 @@
 const std = @import("std");
 
 pub fn recite(buffer: []u8, start_verse: u32, end_verse: u32) ![]const u8 {
-    var fba = std.heap.FixedBufferAllocator.init(buffer);
-    const allocator = fba.allocator();
-
-    var verses_store: std.ArrayList([]const u8) = .empty;
-    defer verses_store.deinit(allocator);
+    var pos: usize = 0;
 
     var curr = start_verse;
     while (curr <= end_verse) : (curr += 1) {
-        const verse = try getVerse(allocator, curr);
-        try verses_store.append(allocator, verse);
+        if (curr > start_verse) {
+            const nl = try std.mem.print(buffer[pos..], "\n", .{});
+            pos += nl.len;
+        }
+
+        const verse = try writeVerse(buffer[pos..], curr);
+        pos += verse.len;
     }
 
-    const verses = try verses_store.toOwnedSlice(allocator);
-    const result = try std.mem.join(allocator, "", verses);
-    return std.mem.print(buffer, "{s}", .{std.mem.trimEnd(u8, result, "\n")});
+    return buffer[0..pos];
 }
 
-fn getVerse(allocator: std.mem.Allocator, num: u32) ![]const u8 {
-    const day = getDay(num);
-    const items = try getItems(allocator, num);
-    return try allocator.print("On the {[day]s} day of Christmas my true love gave to me: {[items]s}\n", .{ .day = day, .items = items });
+fn writeVerse(buffer: []u8, num: u32) ![]const u8 {
+    var items_buf: [320]u8 = undefined;
+
+    const items = try writeItems(&items_buf, num);
+    return try std.mem.print(
+        buffer,
+        "On the {[ordinal]s} day of Christmas my true love gave to me: {[items]s}",
+        .{ .ordinal = getOrdinal(num), .items = items },
+    );
 }
 
-fn getDay(num: u32) []const u8 {
-    return switch (num) {
-        1 => "first",
-        2 => "second",
-        3 => "third",
-        4 => "fourth",
-        5 => "fifth",
-        6 => "sixth",
-        7 => "seventh",
-        8 => "eighth",
-        9 => "ninth",
-        10 => "tenth",
-        11 => "eleventh",
-        12 => "twelfth",
-        else => unreachable,
-    };
-}
-
-fn getItems(allocator: std.mem.Allocator, num: u32) ![]const u8 {
+fn writeItems(buffer: []u8, num: u32) ![]const u8 {
     if (num == 1) return "a Partridge in a Pear Tree.";
 
-    var items = std.ArrayList([]const u8).empty;
+    var pos: usize = 0;
     var curr = num;
-    while (curr > 0) : (curr -= 1) {
-        const item = getItem(curr);
-        try items.append(allocator, item);
+
+    while (curr >= 1) : (curr -= 1) {
+        if (curr < num) {
+            const sep = try std.mem.print(buffer[pos..], ", ", .{});
+            pos += sep.len;
+        }
+
+        const item = try std.mem.print(buffer[pos..], "{s}", .{getItem(curr)});
+        pos += item.len;
+
+        if (curr == 1) break;
     }
 
-    return try std.mem.join(allocator, ", ", try items.toOwnedSlice(allocator));
+    return buffer[0..pos];
 }
 
 fn getItem(num: u32) []const u8 {
@@ -69,6 +63,24 @@ fn getItem(num: u32) []const u8 {
         10 => "ten Lords-a-Leaping",
         11 => "eleven Pipers Piping",
         12 => "twelve Drummers Drumming",
+        else => unreachable,
+    };
+}
+
+fn getOrdinal(num: u32) []const u8 {
+    return switch (num) {
+        1 => "first",
+        2 => "second",
+        3 => "third",
+        4 => "fourth",
+        5 => "fifth",
+        6 => "sixth",
+        7 => "seventh",
+        8 => "eighth",
+        9 => "ninth",
+        10 => "tenth",
+        11 => "eleventh",
+        12 => "twelfth",
         else => unreachable,
     };
 }
